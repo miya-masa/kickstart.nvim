@@ -1290,5 +1290,14 @@ require('lazy').setup({
   },
 })
 
+vim.api.nvim_create_user_command('UpdateDisplay', function()
+  local display = vim.fn.system 'tmux show-env DISPLAY'
+  if vim.v.shell_error == 0 then
+    vim.env.DISPLAY = display:gsub('^DISPLAY=', ''):gsub('\n', '')
+  else
+    print 'Failed to update DISPLAY variable.'
+  end
+end, {})
+
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
