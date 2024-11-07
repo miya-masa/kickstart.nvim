@@ -3,6 +3,27 @@
 --
 -- See the kickstart.nvim README for more information
 return {
+
+  {
+    'kdheepak/lazygit.nvim',
+    lazy = true,
+    cmd = {
+      'LazyGit',
+      'LazyGitConfig',
+      'LazyGitCurrentFile',
+      'LazyGitFilter',
+      'LazyGitFilterCurrentFile',
+    },
+    -- optional for floating window border decoration
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
+    -- setting the keybinding for LazyGit with 'keys' is recommended in
+    -- order to load the plugin when the command is run for the first time
+    keys = {
+      { '<leader>lg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
+    },
+  },
   {
     'akinsho/toggleterm.nvim',
     version = '*',
@@ -30,15 +51,15 @@ return {
       vim.cmd 'autocmd! TermOpen term://* lua set_terminal_keymaps_1()'
 
       local Terminal = require('toggleterm.terminal').Terminal
-      local lazygit = Terminal:new {
-        cmd = 'lazygit',
-        hidden = true,
-        direction = 'float',
-      }
+      -- local lazygit = Terminal:new {
+      --   cmd = 'lazygit',
+      --   hidden = true,
+      --   direction = 'float',
+      -- }
 
-      function LazygitToggle()
-        lazygit:toggle()
-      end
+      -- function LazygitToggle()
+      --   lazygit:toggle()
+      -- end
 
       local lazydocker = require('toggleterm.terminal').Terminal:new {
         cmd = 'lazydocker',
@@ -58,7 +79,7 @@ return {
         htop:toggle()
       end
 
-      vim.api.nvim_set_keymap('n', '<leader>lg', '<cmd>lua LazygitToggle()<CR>', { noremap = true, silent = true })
+      -- vim.api.nvim_set_keymap('n', '<leader>lg', '<cmd>lua LazygitToggle()<CR>', { noremap = true, silent = true })
       vim.api.nvim_set_keymap('n', '<leader>ld', '<cmd>lua LazydockerToggle()<CR>', { noremap = true, silent = true })
       vim.api.nvim_set_keymap('n', '<leader>ht', '<cmd>lua HtopToggle()<CR>', { noremap = true, silent = true })
     end,
@@ -570,7 +591,7 @@ return {
 
       -- Print var
 
-      vim.keymap.set({ 'x', 'n' }, '<leader>rv', function()
+      vim.keymap.set({ 'x', 'n' }, '<leader>rd', function()
         require('refactoring').debug.print_var()
       end)
       -- Supports both visual and normal mode
@@ -584,10 +605,29 @@ return {
   {
     'MeanderingProgrammer/render-markdown.nvim',
     opts = {},
-    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' }, -- if you prefer nvim-web-devicons
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter',
+      'nvim-tree/nvim-web-devicons',
+    }, -- if you prefer nvim-web-devicons
   },
   {
     'numToStr/Comment.nvim',
     opts = {},
+  },
+  {
+    'nvim-pack/nvim-spectre',
+    opts = {},
+    config = function()
+      require('spectre').setup()
+      vim.keymap.set('n', '<leader>tS', '<cmd>lua require("spectre").toggle()<CR>', {
+        desc = '[T]oggle [S]pectre',
+      })
+      vim.keymap.set('n', '<leader>sw', '<cmd>lua require("spectre").open_visual({select_word=true})<CR>', {
+        desc = '[S]earch [c]urrent word',
+      })
+      vim.keymap.set('v', '<leader>sw', '<esc><cmd>lua require("spectre").open_visual()<CR>', {
+        desc = '[S]earch current [w]ord',
+      })
+    end,
   },
 }
