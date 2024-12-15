@@ -13,10 +13,8 @@ return {
         null_ls.builtins.diagnostics.sqlfluff.with {
           extra_args = { '--dialect', 'postgres' }, -- change to your dialect
         },
-        null_ls.builtins.formatting.sqlfluff.with {
-          extra_args = { '--dialect', 'postgres' }, -- change to your dialect
-        },
         require 'none-ls.diagnostics.ruff',
+        null_ls.builtins.formatting.shfmt,
       },
     }
   end,

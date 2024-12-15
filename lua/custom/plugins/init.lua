@@ -3,7 +3,6 @@
 --
 -- See the kickstart.nvim README for more information
 return {
-
   {
     'kdheepak/lazygit.nvim',
     lazy = true,
@@ -26,6 +25,15 @@ return {
   },
   {
     'akinsho/toggleterm.nvim',
+    lazy = true,
+    cmd = {
+      'ToggleTerm',
+    },
+    keys = {
+      { '<C-z>', mode = 'n', desc = 'ToggleTerm' },
+      { ',ld', mode = 'n', desc = 'LazyDocker' },
+      { ',ht', mode = 'n', desc = 'Htop' },
+    },
     version = '*',
     config = function()
       require('toggleterm').setup {
@@ -49,17 +57,6 @@ return {
       end
 
       vim.cmd 'autocmd! TermOpen term://* lua set_terminal_keymaps_1()'
-
-      local Terminal = require('toggleterm.terminal').Terminal
-      -- local lazygit = Terminal:new {
-      --   cmd = 'lazygit',
-      --   hidden = true,
-      --   direction = 'float',
-      -- }
-
-      -- function LazygitToggle()
-      --   lazygit:toggle()
-      -- end
 
       local lazydocker = require('toggleterm.terminal').Terminal:new {
         cmd = 'lazydocker',
@@ -119,6 +116,30 @@ return {
       vim.g.vrc_trigger = '<Leader><C-o>'
     end,
   },
+  {
+    'rest-nvim/rest.nvim',
+    lazy = true,
+    event = { 'BufRead', 'BufNew' },
+    config = function()
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = 'json',
+        callback = function()
+          vim.bo.formatexpr = ''
+          vim.bo.formatprg = 'jq'
+        end,
+      })
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = 'http',
+        callback = function()
+          vim.api.nvim_set_keymap('n', '<Leader><C-o>', ':Rest run<CR>', { noremap = true, silent = true })
+          -- first load extension
+          require('telescope').load_extension 'rest'
+          -- then use it, you can also use the `:Telescope rest select_env` command
+          vim.api.nvim_set_keymap('n', '<leader>se', ':Telescope rest select_env<CR>', { noremap = true, silent = true, desc = '[S]earch select [E]nv' })
+        end,
+      })
+    end,
+  },
   'simeji/winresizer',
   'tpope/vim-abolish',
   {
@@ -145,12 +166,38 @@ return {
         { '<Leader>ot', '<cmd>OverseerToggle<CR>', desc = '[O]verseer[T]oggle' },
         { '<Leader>oqw', '<cmd>OverseerQuickAction watch<CR>', desc = '[O]verseer[Q]uickAction [W]atch' },
         { '<Leader>oqr', '<cmd>OverseerQuickAction restart<CR>', desc = '[O]verseer[Q]uickAction Re[S]tart' },
+        { 'm ', ':Make ', desc = 'Make' },
       }
+      vim.api.nvim_create_user_command('Make', function(params)
+        -- Insert args at the '$*' in the makeprg
+        local cmd, num_subs = vim.o.makeprg:gsub('%$%*', params.args)
+        if num_subs == 0 then
+          cmd = cmd .. ' ' .. params.args
+        end
+        local task = require('overseer').new_task {
+          cmd = vim.fn.expandcmd(cmd),
+          components = {
+            { 'on_output_quickfix', open = not params.bang, open_height = 8 },
+            'default',
+          },
+        }
+        task:start()
+      end, {
+        desc = 'Run your makeprg as an Overseer task',
+        nargs = '*',
+        bang = true,
+      })
     end,
   },
   'stefandtw/quickfix-reflector.vim',
   'tmux-plugins/vim-tmux-focus-events',
-  'vim-jp/vimdoc-ja',
+  {
+    'vim-jp/vimdoc-ja',
+    lazy = true,
+    keys = {
+      { 'h', mode = 'c' },
+    },
+  },
   {
     'johmsalas/text-case.nvim',
     dependencies = { 'nvim-telescope/telescope.nvim' },
@@ -173,7 +220,7 @@ return {
     -- If you want to use the interactive feature of the `Subs` command right away, text-case.nvim
     -- has to be loaded on startup. Otherwise, the interactive feature of the `Subs` will only be
     -- available after the first executing of it or after a keymap of text-case.nvim has been used.
-    lazy = false,
+    lazy = true,
   },
   {
     'ggandor/leap.nvim',
@@ -230,15 +277,46 @@ return {
   },
   {
     'CopilotC-Nvim/CopilotChat.nvim',
-    branch = 'canary',
+    branch = 'main',
+    event = { 'BufRead', 'BufNew' },
     dependencies = {
       { 'zbirenbaum/copilot.lua' }, -- or github/copilot.vim
       { 'nvim-lua/plenary.nvim' }, -- for curl, log wrapper
+      { 'MeanderingProgrammer/render-markdown.nvim' },
     },
+    keys = {
+      {
+        '<leader>ccp',
+        function()
+          local actions = require 'CopilotChat.actions'
+          require('CopilotChat.integrations.telescope').pick(actions.prompt_actions())
+        end,
+        desc = 'CopilotChat - Prompt actions',
+      },
+      {
+        '<leader>ccq',
+        function()
+          local input = vim.fn.input 'Quick Chat: '
+          if input ~= '' then
+            require('CopilotChat').ask(input, { selection = require('CopilotChat.select').buffer })
+          end
+        end,
+        desc = 'CopilotChat - Quick chat',
+      },
+    },
+    build = 'make tiktoken', -- Only on MacOS or Linux
     config = function(_, opts)
       local chat = require 'CopilotChat'
       local select = require 'CopilotChat.select'
       local prompts = require 'custom.plugins.chatgpt.copilot-chat-prompts'
+      -- Registers copilot-chat filetype for markdown rendering
+      require('render-markdown').setup {
+        file_types = { 'markdown', 'copilot-chat' },
+      }
+
+      opts.highlight_headers = false
+      opts.separator = '---'
+      opts.error_header = '> [!ERROR] Error'
 
       opts.model = 'gpt-4' -- GPT model to use, 'gpt-3.5-turbo' or 'gpt-4'
       opts.context = 'buffers'
@@ -246,7 +324,7 @@ return {
       opts.system_prompts = prompts.COPILOT_INSTRUCTIONS
       opts.prompts = {
         Explain = {
-          prompt = '/COPILOT_EXPLAIN 上記のコードの説明をテキストの段落として記述してください。',
+          prompt = '> /COPILOT_EXPLAIN\n\n上記のコードの説明をテキストの段落として記述してください。',
         },
         Review = {
           prompt = '/COPILOT_REVIEW 選択したコードをレビューします。',
@@ -288,31 +366,32 @@ return {
           end,
         },
         Tests = {
-          prompt = '/COPILOT_GENERATE 上記のコードに対して一連の詳細な単体テスト関数をテーブルテスト形式で作成してください。',
+          prompt = '> /COPILOT_GENERATE\n\n上記のコードに対して一連の詳細な単体テスト関数をテーブルテスト形式で作成してください。',
         },
         GoTests = {
-          prompt = '/COPILOT_GENERATE 上記のコードに対して一連の詳細な単体テスト関数をテーブルテスト形式で作成してください。アサーションは `github.com/stretchr/testify` を使用してください。モックは使用しません。パッケージは `_test` の接尾辞をつけてください。`.` によるセルフインポートも追加してください。関数名は構造体のメソッドはTest<構造体名>_<テスト対象関数名>とし、そうでない場合は Test<テスト対象関数名>としてください。テストの期待値はwantから連想される変数名を使用し、テスト中の実際の値はgotから連想される文字列を使用してください。テストケースの構造体はtestsという変数名を使用し、変数はttとしてください。',
+          prompt = '> /COPILOT_GENERATE\n\n 上記のコードに対して一連の詳細な単体テスト関数をテーブルテスト形式で作成してください。アサーションは `github.com/stretchr/testify` を使用してください。モックは使用しません。パッケージは `_test` の接尾辞をつけてください。`.` によるセルフインポートも追加してください。関数名は構造体のメソッドはTest<構造体名>_<テスト対象関数名>とし、そうでない場合は Test<テスト対象関数名>としてください。テストの期待値はwantから連想される変数名を使用し、テスト中の実際の値はgotから連想される文字列を使用してください。テストケースの構造体はtestsという変数名を使用し、変数はttとしてください。',
+          mapping = '<leader>ccgt',
         },
         TestsWithMock = {
-          prompt = '/COPILOT_GENERATE 上記のコードに対して一連の詳細な単体テスト関数をテーブルテスト形式で作成してください。',
+          prompt = '> /COPILOT_GENERATE\n\n上記のコードに対して一連の詳細な単体テスト関数をテーブルテスト形式で作成してください。',
         },
         GoTestsWithMock = {
-          prompt = '/COPILOT_GENERATE 上記のコードに対して一連の詳細な単体テスト関数をテーブルテスト形式で作成してください。アサーションは `github.com/stretchr/testify` を使用してください。必要に応じてモックライブラリとして `go.uber.org/mock/gomock` を使用してください。パッケージは `_test` の接尾辞をつけてください。`.` によるセルフインポートも追加してください。関数名は構造体のメソッドはTest<構造体名>_<テスト対象関数名>とし、そうでない場合は Test<テスト対象関数名>としてください。テストの期待値はwantから連想される変数名を使用し、取得した値はgotから連想される文字列を使用してください。テストケースの構造体はtestsという変数名を使用し、変数はttとしてください。',
+          prompt = '> /COPILOT_GENERATE\n\n上記のコードに対して一連の詳細な単体テスト関数をテーブルテスト形式で作成してください。アサーションは `github.com/stretchr/testify` を使用してください。必要に応じてモックライブラリとして `go.uber.org/mock/gomock` を使用してください。パッケージは `_test` の接尾辞をつけてください。`.` によるセルフインポートも追加してください。関数名は構造体のメソッドはTest<構造体名>_<テスト対象関数名>とし、そうでない場合は Test<テスト対象関数名>としてください。テストの期待値はwantから連想される変数名を使用し、取得した値はgotから連想される文字列を使用してください。テストケースの構造体はtestsという変数名を使用し、変数はttとしてください。',
         },
         GoTestsValidator = {
-          prompt = '/COPILOT_GENERATE 上記の構造体のコードに対して、github.com/go-playground/validator/v10 を使用したバリデーションの網羅的な単体テストを書いてください。パッケージは `_test` の接尾辞をつけてください。`.` によるセルフインポートも追加してください。関数名は構造体のメソッドはTest<構造体名>_<テスト対象関数名>とし、そうでない場合は Test<テスト対象関数名>としてください。テストの期待値はwantから連想される変数名を使用し、取得した値はgotから連想される文字列を使用してください。テストケースの構造体はtestsという変数名を使用し、変数はttとしてください。',
+          prompt = '> /COPILOT_GENERATE\n\n上記の構造体のコードに対して、github.com/go-playground/validator/v10 を使用したバリデーションの網羅的な単体テストを書いてください。パッケージは `_test` の接尾辞をつけてください。`.` によるセルフインポートも追加してください。関数名は構造体のメソッドはTest<構造体名>_<テスト対象関数名>とし、そうでない場合は Test<テスト対象関数名>としてください。テストの期待値はwantから連想される変数名を使用し、取得した値はgotから連想される文字列を使用してください。テストケースの構造体はtestsという変数名を使用し、変数はttとしてください。',
         },
         GoBench = {
-          prompt = '/COPILOT_GENERATE 上記のコードに対して一連のベンチマークテストを作成してください。',
+          prompt = '> /COPILOT_GENERATE\n\n上記のコードに対して一連のベンチマークテストを作成してください。',
         },
         Fix = {
-          prompt = '/COPILOT_GENERATE このコードには問題があります。バグが修正された状態で表示されるようにコードを書き換えてください。',
+          prompt = '> /COPILOT_GENERATE\n\nこのコードには問題があります。バグが修正された状態で表示されるようにコードを書き換えてください。',
         },
         Optimize = {
-          prompt = '/COPILOT_GENERATE 選択したコードを最適化して、パフォーマンスと可読性を向上させてください。',
+          prompt = '> /COPILOT_GENERATE\n\n選択したコードを最適化して、パフォーマンスと可読性を向上させてください。',
         },
         Docs = {
-          prompt = '/COPILOT_GENERATE 選択したコードのドキュメントを作成してください。返信は、元のコードとコメントとして追加されたドキュメントを含むコードブロックである必要があります。使用するプログラミング言語に最も適切なドキュメント スタイルを使用します (例: JavaScript の場合は JSDoc、Python の場合は docstrings など)。',
+          prompt = '> /COPILOT_GENERATE\n\n選択したコードのドキュメントを作成してください。返信は、元のコードとコメントとして追加されたドキュメントを含むコードブロックである必要があります。使用するプログラミング言語に最も適切なドキュメント スタイルを使用します (例: JavaScript の場合は JSDoc、Python の場合は docstrings など)。',
         },
         FixDiagnostic = {
           prompt = 'ファイル内の次の診断問題にご協力ください。:',
@@ -360,28 +439,25 @@ return {
   {
     'chrisgrieser/nvim-spider',
     lazy = true,
-    {
-      'chrisgrieser/nvim-spider',
-      keys = {
-        {
-          'e',
-          "<cmd>lua require('spider').motion('e')<CR>",
-          mode = { 'n', 'o', 'x' },
-        },
-        {
-          'w',
-          "<cmd>lua require('spider').motion('w')<CR>",
-          mode = { 'n', 'o', 'x' },
-        },
-        {
-          'b',
-          "<cmd>lua require('spider').motion('b')<CR>",
-          mode = { 'n', 'o', 'x' },
-        },
+    keys = {
+      {
+        'e',
+        "<cmd>lua require('spider').motion('e')<CR>",
+        mode = { 'n', 'o', 'x' },
+      },
+      {
+        'w',
+        "<cmd>lua require('spider').motion('w')<CR>",
+        mode = { 'n', 'o', 'x' },
+      },
+      {
+        'b',
+        "<cmd>lua require('spider').motion('b')<CR>",
+        mode = { 'n', 'o', 'x' },
       },
     },
   },
-  'tpope/vim-dispatch',
+  -- 'tpope/vim-dispatch',
   {
     'buoto/gotests-vim',
     config = function()
@@ -503,7 +579,6 @@ return {
       vim.api.nvim_set_keymap('n', '<Leader>l', '<Cmd>noh<CR>', kopts)
     end,
   },
-  { 'ellisonleao/glow.nvim', config = true, cmd = 'Glow' },
   {
     'prochri/telescope-all-recent.nvim',
     dependencies = {

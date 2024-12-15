@@ -792,6 +792,7 @@ require('lazy').setup({
 
   { -- Autoformat
     'stevearc/conform.nvim',
+    lazy = true,
     event = { 'BufWritePre' },
     cmd = { 'ConformInfo' },
     keys = {
@@ -828,7 +829,7 @@ require('lazy').setup({
         -- Conform can also run multiple formatters sequentially
         python = { 'ruff_format', 'ruff_organize_imports' },
         sh = { 'shfmt' },
-        sql = { 'pg_format' },
+        sql = { 'sqlfluff' },
         json = { 'jq' },
         proto = { 'buf' },
         --
@@ -843,7 +844,7 @@ require('lazy').setup({
         -- ['*'] = { 'codespell' },
         -- Use the "_" filetype to run formatters on filetypes that don't
         -- have other formatters configured.
-        -- ['_'] = { 'trim_whitespace' },
+        ['_'] = { 'trim_whitespace' },
       },
     },
   },
@@ -1264,7 +1265,7 @@ require('lazy').setup({
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  require 'kickstart.plugins.debug',
+  -- require 'kickstart.plugins.debug',
   require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
@@ -1312,6 +1313,12 @@ vim.api.nvim_create_user_command('UpdateDisplay', function()
   end
 end, {})
 vim.opt.swapfile = false
+
+if vim.fn.has 'nvim' == 1 and vim.fn.executable 'nvr' == 1 then
+  -- pip3 install neovim-remote
+  vim.env.GIT_EDITOR = "nvr -cc split --remote-wait +'set bufhidden=wipe'"
+end
+vim.loader.enable()
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
