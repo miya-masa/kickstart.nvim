@@ -4,13 +4,12 @@ return {
   config = function()
     require('dashboard').setup {
       theme = 'hyper',
-      -- theme = 'doom',
       config = {
         week_header = {
           enable = true,
         },
         project = {
-          enable = false
+          enable = false,
         },
         shortcut = {
           { desc = '󰊳 Update', group = '@property', action = 'Lazy update', key = 'u' },
@@ -19,24 +18,22 @@ return {
             icon_hl = '@variable',
             desc = 'Files',
             group = 'Label',
-            action = 'Telescope find_files',
+            action = 'Telescope git_files',
             key = 'f',
           },
           {
-            desc = ' Apps',
-            group = 'DiagnosticHint',
-            action = 'Telescope app',
-            key = 'a',
+            desc = ' Memo',
+            action = 'Telekasten',
+            key = 'm',
           },
           {
             desc = ' dotfiles',
-            group = 'Number',
-            action = 'Telescope dotfiles',
+            action = 'e ~/dotfiles/README.md',
             key = 'd',
           },
         },
       },
     }
   end,
-  dependencies = { 'nvim-tree/nvim-web-devicons' }
+  dependencies = { 'nvim-tree/nvim-web-devicons' },
 }

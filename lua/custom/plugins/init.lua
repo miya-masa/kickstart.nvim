@@ -42,22 +42,6 @@ return {
         size = 20,
       }
 
-      function _G.set_terminal_keymaps_1()
-        local opts = { buffer = 0 }
-
-        local filetype = vim.bo.filetype
-        if filetype ~= 'lazygit' then
-          vim.keymap.set('t', '<esc>', [[<C-\><C-n>]], opts)
-        end
-        vim.keymap.set('t', '<C-h>', [[<Cmd>wincmd h<CR>]], opts)
-        vim.keymap.set('t', '<C-j>', [[<Cmd>wincmd j<CR>]], opts)
-        vim.keymap.set('t', '<C-k>', [[<Cmd>wincmd k<CR>]], opts)
-        vim.keymap.set('t', '<C-l>', [[<Cmd>wincmd l<CR>]], opts)
-        vim.keymap.set('t', '<C-w>', [[<C-\><C-n><C-w>]], opts)
-      end
-
-      vim.cmd 'autocmd! TermOpen term://* lua set_terminal_keymaps_1()'
-
       local lazydocker = require('toggleterm.terminal').Terminal:new {
         cmd = 'lazydocker',
         hidden = true,
@@ -76,7 +60,6 @@ return {
         htop:toggle()
       end
 
-      -- vim.api.nvim_set_keymap('n', '<leader>lg', '<cmd>lua LazygitToggle()<CR>', { noremap = true, silent = true })
       vim.api.nvim_set_keymap('n', '<leader>ld', '<cmd>lua LazydockerToggle()<CR>', { noremap = true, silent = true })
       vim.api.nvim_set_keymap('n', '<leader>ht', '<cmd>lua HtopToggle()<CR>', { noremap = true, silent = true })
     end,
@@ -204,11 +187,9 @@ return {
     config = function()
       require('textcase').setup {}
       require('telescope').load_extension 'textcase'
+      vim.api.nvim_set_keymap('n', 'ga.', '<cmd>TextCaseOpenTelescope<CR>', { desc = 'Telescope' })
+      vim.api.nvim_set_keymap('v', 'ga.', '<cmd>TextCaseOpenTelescope<CR>', { desc = 'Telescope' })
     end,
-    keys = {
-      'ga', -- Default invocation prefix
-      { 'ga.', '<cmd>TextCaseOpenTelescope<CR>', mode = { 'n', 'x' }, desc = 'Telescope' },
-    },
     cmd = {
       -- NOTE: The Subs command name can be customized via the option "substitute_command_name"
       'Subs',
@@ -247,32 +228,32 @@ return {
   {
     'jbyuki/venn.nvim',
     config = function()
-      local function toggle_venn_feature()
-        local is_enabled = vim.b.venn or {}
-        is_enabled.feature_enabled = is_enabled.feature_enabled or false
-
-        -- トグル操作
-        if is_enabled.feature_enabled then
-          vim.cmd [[setlocal ve=]]
-          vim.cmd [[mapclear <buffer>]]
-          is_enabled.feature_enabled = false
-          print 'venn off'
-        else
+      -- venn.nvim: enable or disable keymappings
+      function _G.Toggle_venn()
+        local venn_enabled = vim.inspect(vim.b.venn_enabled)
+        if venn_enabled == 'nil' then
+          vim.b.venn_enabled = true
           vim.cmd [[setlocal ve=all]]
-          -- draw a line on HJKL keystrokes
+          -- draw a line on HJKL keystokes
+          vim.api.nvim_buf_set_keymap(0, 'n', 'J', '<C-v>j:VBox<CR>', { noremap = true })
+          vim.api.nvim_buf_set_keymap(0, 'n', 'K', '<C-v>k:VBox<CR>', { noremap = true })
+          vim.api.nvim_buf_set_keymap(0, 'n', 'L', '<C-v>l:VBox<CR>', { noremap = true })
+          vim.api.nvim_buf_set_keymap(0, 'n', 'H', '<C-v>h:VBox<CR>', { noremap = true })
           -- draw a box by pressing "f" with visual selection
           vim.api.nvim_buf_set_keymap(0, 'v', '<CR>', ':VBox<CR>', { noremap = true })
-          is_enabled.feature_enabled = true
           print 'venn on'
+        else
+          vim.cmd [[setlocal ve=]]
+          vim.api.nvim_buf_del_keymap(0, 'n', 'J')
+          vim.api.nvim_buf_del_keymap(0, 'n', 'K')
+          vim.api.nvim_buf_del_keymap(0, 'n', 'L')
+          vim.api.nvim_buf_del_keymap(0, 'n', 'H')
+          vim.api.nvim_buf_del_keymap(0, 'v', '<CR>')
+          vim.b.venn_enabled = nil
+          print 'venn off'
         end
       end
-
-      -- 'AToggle' という名前のコマンドを作成して、上記の関数を割り当てる
-      vim.api.nvim_create_user_command('ToggleVenn', toggle_venn_feature, { desc = 'Toggle Venn feature' })
-      local wk = require 'which-key'
-      wk.add {
-        { '<Leader>tv', '<cmd>ToggleVenn<CR>', desc = '[T]oggle [V]enn feature' },
-      }
+      vim.api.nvim_set_keymap('n', '<leader>tv', ':lua Toggle_venn()<CR>', { noremap = true })
     end,
   },
   {
@@ -318,7 +299,7 @@ return {
       opts.separator = '---'
       opts.error_header = '> [!ERROR] Error'
 
-      opts.model = 'gpt-4' -- GPT model to use, 'gpt-3.5-turbo' or 'gpt-4'
+      opts.model = 'gpt-4o' -- GPT model to use, 'gpt-3.5-turbo' or 'gpt-4'
       opts.context = 'buffers'
       opts.history_path = '~/.copilotchat_history' -- Default path to stored history
       opts.system_prompts = prompts.COPILOT_INSTRUCTIONS
@@ -684,25 +665,54 @@ return {
       'nvim-treesitter/nvim-treesitter',
       'nvim-tree/nvim-web-devicons',
     }, -- if you prefer nvim-web-devicons
+    config = function()
+      require('render-markdown').setup {
+        file_types = { 'markdown', 'telekasten' },
+      }
+    end,
   },
   {
     'numToStr/Comment.nvim',
     opts = {},
   },
   {
-    'nvim-pack/nvim-spectre',
-    opts = {},
+    'jay-babu/mason-null-ls.nvim',
+    event = { 'BufReadPre', 'BufNewFile' },
+    dependencies = {
+      'williamboman/mason.nvim',
+      'nvimtools/none-ls.nvim',
+    },
     config = function()
-      require('spectre').setup()
-      vim.keymap.set('n', '<leader>tS', '<cmd>lua require("spectre").toggle()<CR>', {
-        desc = '[T]oggle [S]pectre',
-      })
-      vim.keymap.set('n', '<leader>sw', '<cmd>lua require("spectre").open_visual({select_word=true})<CR>', {
-        desc = '[S]earch [c]urrent word',
-      })
-      vim.keymap.set('v', '<leader>sw', '<esc><cmd>lua require("spectre").open_visual()<CR>', {
-        desc = '[S]earch current [w]ord',
-      })
+      local null_ls = require 'null-ls'
+      null_ls.setup {
+        sources = {
+          null_ls.builtins.diagnostics.golangci_lint,
+          null_ls.builtins.diagnostics.hadolint,
+          null_ls.builtins.diagnostics.rstcheck,
+          null_ls.builtins.diagnostics.markdownlint.with {
+            args = { '--stdin', '-c', vim.fn.expand '$HOME/.markdownlintrc' },
+          },
+          null_ls.builtins.diagnostics.sqlfluff.with {
+            extra_args = { '--dialect', 'postgres' }, -- change to your dialect
+          },
+          require 'none-ls.diagnostics.ruff',
+          null_ls.builtins.code_actions.refactoring,
+          null_ls.builtins.code_actions.gomodifytags,
+        },
+      }
+      require('mason-null-ls').setup {}
+    end,
+  },
+  -- install with yarn or npm
+  {
+    'iamcco/markdown-preview.nvim',
+    cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
+    build = 'cd app && yarn install',
+    ft = { 'markdown' },
+    config = function()
+      vim.g.mkdp_filetypes = { 'markdown' }
+      vim.g.mkdp_open_to_the_world = 1
+      vim.g.mkdp_port = '54321'
     end,
   },
 }

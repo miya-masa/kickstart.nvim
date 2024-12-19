@@ -451,7 +451,9 @@ require('lazy').setup({
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-      vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
+      vim.keymap.set('n', '<leader>sf', function()
+        require('telescope.builtin').find_files()
+      end, { desc = '[S]earch [F]iles' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       -- vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' }) spectre
       vim.keymap.set('n', '<leader>sg', require('telescope').extensions.live_grep_args.live_grep_args, { desc = '[S]earch by [G]rep' })
@@ -490,7 +492,7 @@ require('lazy').setup({
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
       vim.keymap.set('n', '<leader>gf', function()
-        builtin.git_files()
+        require('telescope.builtin').git_files()
       end, { desc = 'Search [G]it [F]iles' })
       vim.keymap.set('n', '<leader>gb', function()
         builtin.git_branches()
@@ -725,7 +727,7 @@ require('lazy').setup({
           },
         },
         dockerls = {},
-        bashls = {},
+        -- bashls = {},
         html = { filetypes = { 'html', 'twig', 'hbs' } },
         terraformls = {
           filetypes = { 'terraform', 'tf' },
@@ -772,8 +774,40 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        -- 'bashls',
+        'buf',
+        'docker_compose_language_service',
+        'dockerls',
+        'esbonio',
+        'gitleaks',
+        'gofumpt',
+        'goimports',
+        'gopls',
+        'hadolint',
+        'html',
+        'jq',
+        'jqls',
+        'lua-language-server',
+        'marksman',
+        'prettier',
+        'prettierd',
+        'pyright',
+        'rstcheck',
+        'ruff',
+        'rust_analyzer',
+        -- 'shellcheck',
+        'sqlfluff',
+        'stylua',
+        'terraformls',
+        'trivy',
+        'ts_ls',
+        'typos_lsp',
+        'yamlls',
+        'yamlfix',
+        'yamlfmt',
+        'yamllint',
       })
-      require('mason-tool-installer').setup { ensure_installed = ensure_installed }
+      require('mason-tool-installer').setup { ensure_installed = ensure_installed, auto_update = true }
 
       require('mason-lspconfig').setup {
         handlers = {
@@ -808,6 +842,10 @@ require('lazy').setup({
     opts = {
       notify_on_error = false,
       format_on_save = function(bufnr)
+        -- Disable with a global or buffer-local variable
+        if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
+          return
+        end
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
@@ -847,6 +885,26 @@ require('lazy').setup({
         ['_'] = { 'trim_whitespace' },
       },
     },
+    config = function(_, opts)
+      vim.api.nvim_create_user_command('FormatDisable', function(args)
+        if args.bang then
+          -- FormatDisable! will disable formatting just for this buffer
+          vim.b.disable_autoformat = true
+        else
+          vim.g.disable_autoformat = true
+        end
+      end, {
+        desc = 'Disable autoformat-on-save',
+        bang = true,
+      })
+      vim.api.nvim_create_user_command('FormatEnable', function()
+        vim.b.disable_autoformat = false
+        vim.g.disable_autoformat = false
+      end, {
+        desc = 'Re-enable autoformat-on-save',
+      })
+      require('conform').setup(opts)
+    end,
   },
 
   { -- Autocompletion
@@ -886,9 +944,6 @@ require('lazy').setup({
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
       -- Snippet Engine & its associated nvim-cmp source
-      'hrsh7th/cmp-vsnip',
-      'hrsh7th/vim-vsnip',
-      'hrsh7th/vim-vsnip-integ',
 
       -- Adds LSP completion capabilities
       'hrsh7th/cmp-nvim-lsp',
@@ -1008,6 +1063,7 @@ require('lazy').setup({
           { name = 'emoji' },
           { name = 'nvim_lsp_signature_help' },
           { name = 'buffer' },
+          { name = 'render-markdown' },
         },
         formatting = {
           format = lspkind.cmp_format {
@@ -1050,11 +1106,6 @@ require('lazy').setup({
             cmp.config.compare.order,
           },
         },
-      }
-      vim.g.vsnip_filetypes = {
-        javascriptreact = { 'javascript' },
-        typescriptreact = { 'typescript' },
-        telekasten = { 'markdown' },
       }
     end,
   },
