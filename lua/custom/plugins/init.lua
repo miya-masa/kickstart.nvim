@@ -715,4 +715,18 @@ return {
       vim.g.mkdp_port = '54321'
     end,
   },
+  {
+    'AckslD/nvim-neoclip.lua',
+    dependencies = {
+      -- you'll need at least one of these
+      { 'nvim-telescope/telescope.nvim' },
+      -- {'ibhagwan/fzf-lua'},
+    },
+    keys = {
+      { '<leader>sc', ':Telescope neoclip<CR>', desc = '[S]earch [C]lipboard' },
+    },
+    config = function()
+      require('neoclip').setup()
+    end,
+  },
 }
