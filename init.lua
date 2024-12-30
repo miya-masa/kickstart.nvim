@@ -788,6 +788,7 @@ require('lazy').setup({
         'jq',
         'jqls',
         'lua-language-server',
+        'sql-formatter',
         'marksman',
         'prettier',
         'prettierd',
@@ -877,6 +878,7 @@ require('lazy').setup({
         javascript = { 'prettierd', 'prettier', stop_after_the_first = true },
         -- Conform will run multiple formatters sequentially
         go = { 'goimports', 'gofmt', 'gofumpt', stop_after_the_first = true },
+        yaml = { 'yamlfmt' },
         -- markdown = { 'codespell' },
         -- Use the "*" filetype to run formatters on all filetypes.
         -- ['*'] = { 'codespell' },
