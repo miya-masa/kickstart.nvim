@@ -1,5 +1,6 @@
 return {
   'nvim-neotest/neotest',
+  lazy = true,
   dependencies = {
     'nvim-neotest/nvim-nio',
     'nvim-lua/plenary.nvim',
@@ -8,6 +9,67 @@ return {
     'nvim-neotest/neotest-python',
     'nvim-neotest/neotest-go',
     -- Your other test adapters here
+  },
+  keys = {
+    {
+      't<C-n>',
+      function()
+        require('neotest').run.run()
+      end,
+      desc = 'Run nearest test',
+    },
+    {
+      'ti<C-n>',
+      function()
+        require('neotest').run.run()
+      end,
+      desc = 'Run nearest test',
+    },
+    {
+      't<C-m>',
+      function()
+        require('neotest').run.stop()
+      end,
+      desc = 'Stop test',
+    },
+    {
+      't<C-f>',
+      function()
+        vim.cmd 'cd %:p:h'
+        require('neotest').run.run(vim.fn.expand '%')
+      end,
+      desc = 'Run file tests',
+    },
+    {
+      't<C-t>',
+      function()
+        vim.cmd 'cd %:p:h'
+        require('neotest').summary.toggle()
+      end,
+      desc = 'Toggle test summary',
+    },
+    {
+      't<C-o>',
+      function()
+        vim.cmd 'cd %:p:h'
+        require('neotest').output.open { enter = true }
+      end,
+      desc = 'Open test output',
+    },
+    {
+      '[n',
+      function()
+        require('neotest').jump.prev { status = 'failed' }
+      end,
+      desc = 'Jump to previous failed test',
+    },
+    {
+      ']n',
+      function()
+        require('neotest').jump.next { status = 'failed' }
+      end,
+      desc = 'Jump to next failed test',
+    },
   },
   config = function()
     -- get neotest namespace (api call creates or returns namespace)
@@ -40,13 +102,5 @@ return {
         unknown = 'u',
       },
     }
-    vim.keymap.set('n', 't<C-n>', ':lua require("neotest").run.run()<CR>')
-    vim.keymap.set('n', 'ti<C-n>', ':lua require("neotest").run.run()<CR>')
-    vim.keymap.set('n', 't<C-m>', ':lua require("neotest").run.stop()<CR>')
-    vim.keymap.set('n', 't<C-f>', ':cd %:p:h<cr>:lua require("neotest").run.run(vim.fn.expand("%"))<CR>')
-    vim.keymap.set('n', 't<C-t>', ':cd %:p:h<cr>:lua require("neotest").summary.toggle()<CR>')
-    vim.keymap.set('n', 't<C-o>', ':cd %:p:h<cr>:lua require("neotest").output.open({ enter = true })<CR>')
-    vim.keymap.set('n', '[n', '<cmd>lua require("neotest").jump.prev({ status = "failed" })<CR>')
-    vim.keymap.set('n', ']n', '<cmd>lua require("neotest").jump.next({ status = "failed" })<CR>')
   end,
 }

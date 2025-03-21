@@ -64,10 +64,17 @@ return {
       vim.api.nvim_set_keymap('n', '<leader>ht', '<cmd>lua HtopToggle()<CR>', { noremap = true, silent = true })
     end,
   },
-  'sindrets/diffview.nvim',
-  'christoomey/vim-tmux-navigator',
+  {
+    'sindrets/diffview.nvim',
+    lazy = true,
+  },
+  {
+    'christoomey/vim-tmux-navigator',
+    lazy = true,
+  },
   {
     'dhruvasagar/vim-table-mode',
+    lazy = true,
     config = function()
       vim.g.table_mode_disable_mappings = 0
       local wk = require 'which-key'
@@ -80,6 +87,7 @@ return {
   },
   {
     'diepm/vim-rest-console',
+    lazy = true,
     config = function()
       vim.g.vrc_curl_opts = {
         ['-b'] = '/tmp/cookie.txt',
@@ -123,10 +131,17 @@ return {
       })
     end,
   },
-  'simeji/winresizer',
-  'tpope/vim-abolish',
+  {
+    'simeji/winresizer',
+    lazy = true,
+  },
+  {
+    'tpope/vim-abolish',
+    lazy = true,
+  },
   {
     'stevearc/overseer.nvim',
+    lazy = true,
     opts = {},
     config = function()
       require('overseer').setup {
@@ -172,8 +187,14 @@ return {
       })
     end,
   },
-  'stefandtw/quickfix-reflector.vim',
-  'tmux-plugins/vim-tmux-focus-events',
+  {
+    'stefandtw/quickfix-reflector.vim',
+    lazy = true,
+  },
+  {
+    'tmux-plugins/vim-tmux-focus-events',
+    lazy = true,
+  },
   {
     'vim-jp/vimdoc-ja',
     lazy = true,
@@ -205,12 +226,14 @@ return {
   },
   {
     'ggandor/leap.nvim',
+    lazy = true,
     config = function()
       require('leap').create_default_mappings()
     end,
   },
   {
     'folke/trouble.nvim',
+    lazy = true,
     dependencies = {
       'nvim-tree/nvim-web-devicons',
     },
@@ -222,11 +245,21 @@ return {
       }
     end,
   },
-  'kyoh86/vim-go-coverage',
-  'deris/vim-rengbang',
-  'mattn/vim-goaddtags',
+  {
+    'kyoh86/vim-go-coverage',
+    lazy = true,
+  },
+  {
+    'deris/vim-rengbang',
+    lazy = true,
+  },
+  {
+    'mattn/vim-goaddtags',
+    lazy = true,
+  },
   {
     'jbyuki/venn.nvim',
+    lazy = true,
     config = function()
       -- venn.nvim: enable or disable keymappings
       function _G.Toggle_venn()
@@ -438,14 +471,14 @@ return {
       },
     },
   },
-  -- 'tpope/vim-dispatch',
   {
+    -- 'tpope/vim-dispatch',
     'buoto/gotests-vim',
+    lazy = true,
     config = function()
       vim.g.gotests_template = 'testify'
     end,
   },
-
   {
     'uga-rosa/translate.nvim',
     keys = {
@@ -477,6 +510,7 @@ return {
   },
   {
     'ahmedkhalf/project.nvim',
+    lazy = true,
     config = function()
       require('project_nvim').setup {
         -- your configuration comes here
@@ -620,12 +654,14 @@ return {
   },
   {
     'MagicDuck/grug-far.nvim',
+    lazy = true,
     config = function()
       require('grug-far').setup {}
     end,
   },
   {
     'ThePrimeagen/refactoring.nvim',
+    lazy = true,
     dependencies = {
       'nvim-lua/plenary.nvim',
       'nvim-treesitter/nvim-treesitter',
@@ -660,6 +696,7 @@ return {
   },
   {
     'MeanderingProgrammer/render-markdown.nvim',
+    lazy = true,
     opts = {},
     dependencies = {
       'nvim-treesitter/nvim-treesitter',
@@ -673,6 +710,7 @@ return {
   },
   {
     'numToStr/Comment.nvim',
+    lazy = true,
     opts = {},
   },
   {
@@ -732,6 +770,7 @@ return {
   -- Lua
   {
     'folke/zen-mode.nvim',
+    lazy = true,
     opts = {
       -- your configuration comes here
       -- or leave it empty to use the default settings
