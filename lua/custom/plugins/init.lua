@@ -66,15 +66,12 @@ return {
   },
   {
     'sindrets/diffview.nvim',
-    lazy = true,
   },
   {
     'christoomey/vim-tmux-navigator',
-    lazy = true,
   },
   {
     'dhruvasagar/vim-table-mode',
-    lazy = true,
     config = function()
       vim.g.table_mode_disable_mappings = 0
       local wk = require 'which-key'
@@ -87,7 +84,6 @@ return {
   },
   {
     'diepm/vim-rest-console',
-    lazy = true,
     config = function()
       vim.g.vrc_curl_opts = {
         ['-b'] = '/tmp/cookie.txt',
@@ -133,11 +129,9 @@ return {
   },
   {
     'simeji/winresizer',
-    lazy = true,
   },
   {
     'tpope/vim-abolish',
-    lazy = true,
   },
   {
     'stevearc/overseer.nvim',
@@ -188,16 +182,10 @@ return {
     end,
   },
   {
-    'stefandtw/quickfix-reflector.vim',
-    lazy = true,
-  },
-  {
     'tmux-plugins/vim-tmux-focus-events',
-    lazy = true,
   },
   {
     'vim-jp/vimdoc-ja',
-    lazy = true,
     keys = {
       { 'h', mode = 'c' },
     },
@@ -222,18 +210,15 @@ return {
     -- If you want to use the interactive feature of the `Subs` command right away, text-case.nvim
     -- has to be loaded on startup. Otherwise, the interactive feature of the `Subs` will only be
     -- available after the first executing of it or after a keymap of text-case.nvim has been used.
-    lazy = true,
   },
   {
     'ggandor/leap.nvim',
-    lazy = true,
     config = function()
       require('leap').create_default_mappings()
     end,
   },
   {
     'folke/trouble.nvim',
-    lazy = true,
     dependencies = {
       'nvim-tree/nvim-web-devicons',
     },
@@ -247,19 +232,15 @@ return {
   },
   {
     'kyoh86/vim-go-coverage',
-    lazy = true,
   },
   {
     'deris/vim-rengbang',
-    lazy = true,
   },
   {
     'mattn/vim-goaddtags',
-    lazy = true,
   },
   {
     'jbyuki/venn.nvim',
-    lazy = true,
     config = function()
       -- venn.nvim: enable or disable keymappings
       function _G.Toggle_venn()
@@ -474,7 +455,6 @@ return {
   {
     -- 'tpope/vim-dispatch',
     'buoto/gotests-vim',
-    lazy = true,
     config = function()
       vim.g.gotests_template = 'testify'
     end,
@@ -510,7 +490,6 @@ return {
   },
   {
     'ahmedkhalf/project.nvim',
-    lazy = true,
     config = function()
       require('project_nvim').setup {
         -- your configuration comes here
