@@ -1,5 +1,5 @@
 return {
-  'glepnir/dashboard-nvim',
+  'nvimdev/dashboard-nvim',
   config = function()
     require('dashboard').setup {
       theme = 'hyper',
