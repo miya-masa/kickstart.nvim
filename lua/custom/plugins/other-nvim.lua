@@ -1,6 +1,7 @@
 return {
   'rgroli/other.nvim',
   lazy = true,
+  cmd = { 'AS', 'AV', 'A' },
   config = function()
     require('other-nvim').setup {
       mappings = {

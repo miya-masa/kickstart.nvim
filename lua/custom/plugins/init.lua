@@ -31,8 +31,22 @@ return {
     },
     keys = {
       { '<C-z>', mode = 'n', desc = 'ToggleTerm' },
-      { ',ld', mode = 'n', desc = 'LazyDocker' },
-      { ',ht', mode = 'n', desc = 'Htop' },
+      {
+        '<leader>ld',
+        function()
+          LazydockerToggle()
+        end,
+        mode = 'n',
+        desc = 'LazyDocker',
+      },
+      {
+        '<leader>ht',
+        function()
+          HtopToggle()
+        end,
+        mode = 'n',
+        desc = 'Htop',
+      },
     },
     version = '*',
     config = function()
@@ -59,9 +73,6 @@ return {
       function HtopToggle()
         htop:toggle()
       end
-
-      vim.api.nvim_set_keymap('n', '<leader>ld', '<cmd>lua LazydockerToggle()<CR>', { noremap = true, silent = true })
-      vim.api.nvim_set_keymap('n', '<leader>ht', '<cmd>lua HtopToggle()<CR>', { noremap = true, silent = true })
     end,
   },
   {
@@ -137,6 +148,17 @@ return {
     'stevearc/overseer.nvim',
     lazy = true,
     opts = {},
+    keys = {
+      { '<Leader>o', desc = 'Overseer', group = 'overseer' },
+      { '<Leader>or', '<cmd>OverseerRun<CR>', desc = '[O]verseer[R]un' },
+      { '<Leader>oc', ':OverseerRunCmd ', desc = '[O]verseer Run [C]md' },
+      { '<Leader>om', ':OverseerRunCmd make ', desc = '[O]verseer Run Cmd [M]ake' },
+      { '<Leader>os', '<cmd>OverseerRun shell<CR>', desc = '[O]verseer Run [S]hell' },
+      { '<Leader>ot', '<cmd>OverseerToggle<CR>', desc = '[O]verseer[T]oggle' },
+      { '<Leader>oqw', '<cmd>OverseerQuickAction watch<CR>', desc = '[O]verseer[Q]uickAction [W]atch' },
+      { '<Leader>oqr', '<cmd>OverseerQuickAction restart<CR>', desc = '[O]verseer[Q]uickAction Re[S]tart' },
+      { 'm ', ':Make ', desc = 'Make' },
+    },
     config = function()
       require('overseer').setup {
         templates = { 'builtin', 'user.run_script', 'user.go_generate' },
@@ -147,18 +169,6 @@ return {
           },
         },
         strategy = 'toggleterm',
-      }
-      local wk = require 'which-key'
-      wk.add {
-        { '<Leader>o', group = 'overseer' },
-        { '<Leader>or', '<cmd>OverseerRun<CR>', desc = '[O]verseer[R]un' },
-        { '<Leader>oc', ':OverseerRunCmd ', desc = '[O]verseer Run [C]md' },
-        { '<Leader>om', ':OverseerRunCmd make ', desc = '[O]verseer Run Cmd [M]ake' },
-        { '<Leader>os', '<cmd>OverseerRun shell<CR>', desc = '[O]verseer Run [S]hell' },
-        { '<Leader>ot', '<cmd>OverseerToggle<CR>', desc = '[O]verseer[T]oggle' },
-        { '<Leader>oqw', '<cmd>OverseerQuickAction watch<CR>', desc = '[O]verseer[Q]uickAction [W]atch' },
-        { '<Leader>oqr', '<cmd>OverseerQuickAction restart<CR>', desc = '[O]verseer[Q]uickAction Re[S]tart' },
-        { 'm ', ':Make ', desc = 'Make' },
       }
       vim.api.nvim_create_user_command('Make', function(params)
         -- Insert args at the '$*' in the makeprg
@@ -645,32 +655,41 @@ return {
       'nvim-lua/plenary.nvim',
       'nvim-treesitter/nvim-treesitter',
     },
+    keys = {
+      { '<leader>re', ':Refactor extract ', mode = 'x', desc = 'Extract to function' },
+      { '<leader>rf', ':Refactor extract_to_file ', mode = 'x', desc = 'Extract to file' },
+      { '<leader>rv', ':Refactor extract_var ', mode = 'x', desc = 'Extract variable' },
+      { '<leader>ri', ':Refactor inline_var', mode = { 'n', 'x' }, desc = 'Inline variable' },
+      { '<leader>rI', ':Refactor inline_func', mode = 'n', desc = 'Inline function' },
+      { '<leader>rb', ':Refactor extract_block', mode = 'n', desc = 'Extract block' },
+      { '<leader>rbf', ':Refactor extract_block_to_file', mode = 'n', desc = 'Extract block to file' },
+      {
+        '<leader>rp',
+        function()
+          require('refactoring').debug.printf { below = false }
+        end,
+        mode = 'n',
+        desc = 'Debug print',
+      },
+      {
+        '<leader>rd',
+        function()
+          require('refactoring').debug.print_var()
+        end,
+        mode = { 'n', 'x' },
+        desc = 'Debug print variable',
+      },
+      {
+        '<leader>rc',
+        function()
+          require('refactoring').debug.cleanup {}
+        end,
+        mode = 'n',
+        desc = 'Debug cleanup',
+      },
+    },
     config = function()
       require('refactoring').setup()
-      vim.keymap.set('x', '<leader>re', ':Refactor extract ')
-      vim.keymap.set('x', '<leader>rf', ':Refactor extract_to_file ')
-      vim.keymap.set('x', '<leader>rv', ':Refactor extract_var ')
-      vim.keymap.set({ 'n', 'x' }, '<leader>ri', ':Refactor inline_var')
-      vim.keymap.set('n', '<leader>rI', ':Refactor inline_func')
-      vim.keymap.set('n', '<leader>rb', ':Refactor extract_block')
-      vim.keymap.set('n', '<leader>rbf', ':Refactor extract_block_to_file')
-      -- You can also use below = true here to to change the position of the printf
-      -- statement (or set two remaps for either one). This remap must be made in normal mode.
-      vim.keymap.set('n', '<leader>rp', function()
-        require('refactoring').debug.printf { below = false }
-      end)
-
-      -- Print var
-
-      vim.keymap.set({ 'x', 'n' }, '<leader>rd', function()
-        require('refactoring').debug.print_var()
-      end)
-      -- Supports both visual and normal mode
-
-      vim.keymap.set('n', '<leader>rc', function()
-        require('refactoring').debug.cleanup {}
-      end)
-      -- Supports only normal mode
     end,
   },
   {
