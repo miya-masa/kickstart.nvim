@@ -930,6 +930,7 @@ require('lazy').setup({
         -- is found.
         -- javascript = { { "prettierd", "prettier" } },
         javascript = { 'prettierd', 'prettier', stop_after_the_first = true },
+        typescript = { 'prettierd', 'prettier', stop_after_the_first = true },
         -- Conform will run multiple formatters sequentially
         go = { 'goimports', 'gofmt', 'gofumpt', stop_after_the_first = true },
         yaml = { 'yamlfmt' },
