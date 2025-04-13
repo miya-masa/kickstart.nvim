@@ -607,12 +607,14 @@ return {
     'zbirenbaum/copilot.lua',
     cmd = 'Copilot',
     event = 'InsertEnter',
-    config = function()
-      require('copilot').setup {
-        suggestion = { enabled = false },
-        panel = { enabled = false },
-      }
-    end,
+    opts = {
+      suggestion = { enabled = false },
+      panel = { enabled = false },
+      filetypes = {
+        markdown = true,
+        help = true,
+      },
+    },
   },
   {
     'nvimdev/lspsaga.nvim',
@@ -756,7 +758,14 @@ return {
     dependencies = {
       -- you'll need at least one of these
       { 'nvim-telescope/telescope.nvim' },
-      -- {'ibhagwan/fzf-lua'},
+      {
+        'ibhagwan/fzf-lua',
+        -- optional for icon support
+        dependencies = { 'nvim-tree/nvim-web-devicons' },
+        -- or if using mini.icons/mini.nvim
+        -- dependencies = { "echasnovski/mini.icons" },
+        opts = {},
+      },
     },
     keys = {
       { '<leader>sc', ':Telescope neoclip<CR>', desc = '[S]earch [C]lipboard' },
