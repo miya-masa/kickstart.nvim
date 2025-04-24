@@ -10,7 +10,9 @@ return {
   -- build = "bundled_build.lua",  -- Use this and set use_bundled_binary = true in opts  (see Advanced configuration)
   opts = {
     extensions = {
-      avante = {},
+      avante = {
+        make_slash_commands = true, -- make /slash commands from MCP server prompts
+      },
       codecompanion = {
         -- Show the mcp tool result in the chat buffer
         -- NOTE:if the result is markdown with headers, content after the headers wont be sent by codecompanion

@@ -1042,15 +1042,16 @@ require('lazy').setup({
       },
 
       sources = {
-        default = { 'copilot', 'git', 'lsp', 'path', 'lazydev', 'cmdline', 'buffer', 'snippets' },
+        default = { 'git', 'lazydev', 'cmdline', 'buffer', 'snippets', 'path', 'copilot', 'lsp' },
         providers = {
           lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
           copilot = {
             name = 'copilot',
             module = 'blink-copilot',
-            score_offset = 100,
+            score_offset = 90,
             async = true,
           },
+
           git = {
             module = 'blink-cmp-git',
             name = 'Git',
@@ -1136,45 +1137,49 @@ require('lazy').setup({
       -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
-      require('mini.surround').setup {
-        mappings = {
-          add = 'ys',
-          delete = 'ds',
-          find = '',
-          find_left = '',
-          highlight = '',
-          replace = 'cs',
-          update_n_lines = '',
-
-          -- Add this only if you don't want to use extended mappings
-          suffix_last = '',
-          suffix_next = '',
-        },
-        search_method = 'cover_or_next',
-      }
+      require('mini.surround').setup {}
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
       --  and try some other statusline plugin
-      local statusline = require 'mini.statusline'
+      -- local statusline = require 'mini.statusline'
       -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = vim.g.have_nerd_font }
+      -- statusline.setup { use_icons = vim.g.have_nerd_font }
 
       -- You can configure sections in the statusline by overriding their
       -- default behavior. For example, here we set the section for
       -- cursor location to LINE:COLUMN
       ---@diagnostic disable-next-line: duplicate-set-field
-      statusline.section_location = function()
-        return '%2l:%-2v'
-      end
+      -- statusline.section_location = function()
+      --   return '%2l:%-2v'
+      -- end
 
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
       -- require('mini.doc').setup {}
-      -- require('mini.operators').setup {
-      --   sort = { prefix = 'gz' },
-      -- }
-      -- require('mini.basics').setup {}
+      require('mini.basics').setup {}
+      require('mini.operators').setup {}
+      local starter = require 'mini.starter'
+      starter.setup {
+        items = {
+          starter.sections.sessions(5, true),
+          starter.sections.recent_files(5, false),
+          starter.sections.recent_files(5, true),
+          -- Use this if you set up 'mini.sessions'
+          starter.sections.telescope(),
+          starter.sections.builtin_actions(),
+        },
+        content_hooks = {
+          starter.gen_hook.adding_bullet(),
+          starter.gen_hook.aligning('center', 'center'),
+        },
+      }
+      require('mini.sessions').setup {}
+      require('mini.visits').setup {}
+      require('mini.jump').setup {}
+      require('mini.jump2d').setup {}
+      require('mini.tabline').setup {}
+      require('mini.bracketed').setup {}
     end,
   },
   { -- Highlight, edit, and navigate code

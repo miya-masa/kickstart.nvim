@@ -94,27 +94,6 @@ return {
     end,
   },
   {
-    'diepm/vim-rest-console',
-    config = function()
-      vim.g.vrc_curl_opts = {
-        ['-b'] = '/tmp/cookie.txt',
-        ['-c'] = '/tmp/cookie.txt',
-        ['-L'] = '',
-        ['-i'] = '',
-        ['--max-time'] = 60,
-      }
-
-      vim.g.vrc_auto_format_response_enabled = 1
-      vim.g.vrc_show_command = 1
-      vim.g.vrc_response_default_content_type = 'application/json'
-      vim.g.vrc_auto_format_response_patterns = {
-        json = 'jq "."',
-        xml = 'tidy -xml -i -',
-      }
-      vim.g.vrc_trigger = '<Leader><C-o>'
-    end,
-  },
-  {
     'rest-nvim/rest.nvim',
     lazy = true,
     event = { 'BufRead', 'BufNew' },
@@ -152,53 +131,6 @@ return {
     'tpope/vim-abolish',
   },
   {
-    'stevearc/overseer.nvim',
-    lazy = true,
-    opts = {},
-    keys = {
-      { '<Leader>o', desc = 'Overseer', group = 'overseer' },
-      { '<Leader>or', '<cmd>OverseerRun<CR>', desc = '[O]verseer[R]un' },
-      { '<Leader>oc', ':OverseerRunCmd ', desc = '[O]verseer Run [C]md' },
-      { '<Leader>om', ':OverseerRunCmd make ', desc = '[O]verseer Run Cmd [M]ake' },
-      { '<Leader>os', '<cmd>OverseerRun shell<CR>', desc = '[O]verseer Run [S]hell' },
-      { '<Leader>ot', '<cmd>OverseerToggle<CR>', desc = '[O]verseer[T]oggle' },
-      { '<Leader>oqw', '<cmd>OverseerQuickAction watch<CR>', desc = '[O]verseer[Q]uickAction [W]atch' },
-      { '<Leader>oqr', '<cmd>OverseerQuickAction restart<CR>', desc = '[O]verseer[Q]uickAction Re[S]tart' },
-      { 'm ', ':Make ', desc = 'Make' },
-    },
-    config = function()
-      require('overseer').setup {
-        templates = { 'builtin', 'user.run_script', 'user.go_generate' },
-        task_list = {
-          bindings = {
-            ['K'] = 'ScrollOutputUp',
-            ['J'] = 'ScrollOutputDown',
-          },
-        },
-        strategy = 'toggleterm',
-      }
-      vim.api.nvim_create_user_command('Make', function(params)
-        -- Insert args at the '$*' in the makeprg
-        local cmd, num_subs = vim.o.makeprg:gsub('%$%*', params.args)
-        if num_subs == 0 then
-          cmd = cmd .. ' ' .. params.args
-        end
-        local task = require('overseer').new_task {
-          cmd = vim.fn.expandcmd(cmd),
-          components = {
-            { 'on_output_quickfix', open = not params.bang, open_height = 8 },
-            'default',
-          },
-        }
-        task:start()
-      end, {
-        desc = 'Run your makeprg as an Overseer task',
-        nargs = '*',
-        bang = true,
-      })
-    end,
-  },
-  {
     'tmux-plugins/vim-tmux-focus-events',
   },
   {
@@ -229,23 +161,41 @@ return {
     -- available after the first executing of it or after a keymap of text-case.nvim has been used.
   },
   {
-    'ggandor/leap.nvim',
-    config = function()
-      require('leap').create_default_mappings()
-    end,
-  },
-  {
     'folke/trouble.nvim',
-    dependencies = {
-      'nvim-tree/nvim-web-devicons',
+    opts = {}, -- for default options, refer to the configuration section for custom setup.
+    cmd = 'Trouble',
+    keys = {
+      {
+        '<leader>xx',
+        '<cmd>Trouble diagnostics toggle<cr>',
+        desc = 'Diagnostics (Trouble)',
+      },
+      {
+        '<leader>xX',
+        '<cmd>Trouble diagnostics toggle filter.buf=0<cr>',
+        desc = 'Buffer Diagnostics (Trouble)',
+      },
+      {
+        '<leader>cs',
+        '<cmd>Trouble symbols toggle focus=false<cr>',
+        desc = 'Symbols (Trouble)',
+      },
+      {
+        '<leader>cl',
+        '<cmd>Trouble lsp toggle focus=false win.position=right<cr>',
+        desc = 'LSP Definitions / references / ... (Trouble)',
+      },
+      {
+        '<leader>xL',
+        '<cmd>Trouble loclist toggle<cr>',
+        desc = 'Location List (Trouble)',
+      },
+      {
+        '<leader>xQ',
+        '<cmd>Trouble qflist toggle<cr>',
+        desc = 'Quickfix List (Trouble)',
+      },
     },
-    config = function()
-      require('trouble').setup {
-        -- your configuration comes here
-        -- or leave it empty to use the default settings
-        -- refer to the configuration section below
-      }
-    end,
   },
   {
     'kyoh86/vim-go-coverage',
@@ -288,165 +238,14 @@ return {
     end,
   },
   {
-    'CopilotC-Nvim/CopilotChat.nvim',
-    branch = 'main',
-    event = { 'BufRead', 'BufNew' },
-    dependencies = {
-      { 'zbirenbaum/copilot.lua' }, -- or github/copilot.vim
-      { 'nvim-lua/plenary.nvim' }, -- for curl, log wrapper
-      { 'MeanderingProgrammer/render-markdown.nvim' },
-    },
-    keys = {
-      {
-        '<leader>ccp',
-        function()
-          local actions = require 'CopilotChat.actions'
-          require('CopilotChat.integrations.telescope').pick(actions.prompt_actions())
-        end,
-        desc = 'CopilotChat - Prompt actions',
-      },
-      {
-        '<leader>ccq',
-        function()
-          local input = vim.fn.input 'Quick Chat: '
-          if input ~= '' then
-            require('CopilotChat').ask(input, { selection = require('CopilotChat.select').buffer })
-          end
-        end,
-        desc = 'CopilotChat - Quick chat',
-      },
-    },
-    build = 'make tiktoken', -- Only on MacOS or Linux
-    config = function(_, opts)
-      local chat = require 'CopilotChat'
-      local select = require 'CopilotChat.select'
-      local prompts = require 'custom.plugins.chatgpt.copilot-chat-prompts'
-      -- Registers copilot-chat filetype for markdown rendering
-      require('render-markdown').setup {
-        file_types = { 'markdown', 'copilot-chat' },
-      }
-
-      opts.highlight_headers = false
-      opts.separator = '---'
-      opts.error_header = '> [!ERROR] Error'
-
-      opts.model = 'gpt-4o' -- GPT model to use, 'gpt-3.5-turbo' or 'gpt-4'
-      opts.context = 'buffers'
-      opts.history_path = '~/.copilotchat_history' -- Default path to stored history
-      opts.system_prompts = prompts.COPILOT_INSTRUCTIONS
-      opts.prompts = {
-        Explain = {
-          prompt = '> /COPILOT_EXPLAIN\n\n上記のコードの説明をテキストの段落として記述してください。',
-        },
-        Review = {
-          prompt = '/COPILOT_REVIEW 選択したコードをレビューします。',
-          callback = function(response, source)
-            local ns = vim.api.nvim_create_namespace 'copilot_review'
-            local diagnostics = {}
-            for line in response:gmatch '[^\r\n]+' do
-              if line:find '^line=' then
-                local start_line = nil
-                local end_line = nil
-                local message = nil
-                local single_match, message_match = line:match '^line=(%d+): (.*)$'
-                if not single_match then
-                  local start_match, end_match, m_message_match = line:match '^line=(%d+)-(%d+): (.*)$'
-                  if start_match and end_match then
-                    start_line = tonumber(start_match)
-                    end_line = tonumber(end_match)
-                    message = m_message_match
-                  end
-                else
-                  start_line = tonumber(single_match)
-                  end_line = start_line
-                  message = message_match
-                end
-
-                if start_line and end_line then
-                  table.insert(diagnostics, {
-                    lnum = start_line - 1,
-                    end_lnum = end_line - 1,
-                    col = 0,
-                    message = message,
-                    severity = vim.diagnostic.severity.WARN,
-                    source = 'Copilot Review',
-                  })
-                end
-              end
-            end
-            vim.diagnostic.set(ns, source.bufnr, diagnostics)
-          end,
-        },
-        Tests = {
-          prompt = '> /COPILOT_GENERATE\n\n上記のコードに対して一連の詳細な単体テスト関数をテーブルテスト形式で作成してください。',
-        },
-        GoTests = {
-          prompt = '> /COPILOT_GENERATE\n\n 上記のコードに対して一連の詳細な単体テスト関数をテーブルテスト形式で作成してください。アサーションは `github.com/stretchr/testify` を使用してください。モックは使用しません。パッケージは `_test` の接尾辞をつけてください。`.` によるセルフインポートも追加してください。関数名は構造体のメソッドはTest<構造体名>_<テスト対象関数名>とし、そうでない場合は Test<テスト対象関数名>としてください。テストの期待値はwantから連想される変数名を使用し、テスト中の実際の値はgotから連想される文字列を使用してください。テストケースの構造体はtestsという変数名を使用し、変数はttとしてください。',
-          mapping = '<leader>ccgt',
-        },
-        TestsWithMock = {
-          prompt = '> /COPILOT_GENERATE\n\n上記のコードに対して一連の詳細な単体テスト関数をテーブルテスト形式で作成してください。',
-        },
-        GoTestsWithMock = {
-          prompt = '> /COPILOT_GENERATE\n\n上記のコードに対して一連の詳細な単体テスト関数をテーブルテスト形式で作成してください。アサーションは `github.com/stretchr/testify` を使用してください。必要に応じてモックライブラリとして `go.uber.org/mock/gomock` を使用してください。パッケージは `_test` の接尾辞をつけてください。`.` によるセルフインポートも追加してください。関数名は構造体のメソッドはTest<構造体名>_<テスト対象関数名>とし、そうでない場合は Test<テスト対象関数名>としてください。テストの期待値はwantから連想される変数名を使用し、取得した値はgotから連想される文字列を使用してください。テストケースの構造体はtestsという変数名を使用し、変数はttとしてください。',
-        },
-        GoTestsValidator = {
-          prompt = '> /COPILOT_GENERATE\n\n上記の構造体のコードに対して、github.com/go-playground/validator/v10 を使用したバリデーションの網羅的な単体テストを書いてください。パッケージは `_test` の接尾辞をつけてください。`.` によるセルフインポートも追加してください。関数名は構造体のメソッドはTest<構造体名>_<テスト対象関数名>とし、そうでない場合は Test<テスト対象関数名>としてください。テストの期待値はwantから連想される変数名を使用し、取得した値はgotから連想される文字列を使用してください。テストケースの構造体はtestsという変数名を使用し、変数はttとしてください。',
-        },
-        GoBench = {
-          prompt = '> /COPILOT_GENERATE\n\n上記のコードに対して一連のベンチマークテストを作成してください。',
-        },
-        Fix = {
-          prompt = '> /COPILOT_GENERATE\n\nこのコードには問題があります。バグが修正された状態で表示されるようにコードを書き換えてください。',
-        },
-        Optimize = {
-          prompt = '> /COPILOT_GENERATE\n\n選択したコードを最適化して、パフォーマンスと可読性を向上させてください。',
-        },
-        Docs = {
-          prompt = '> /COPILOT_GENERATE\n\n選択したコードのドキュメントを作成してください。返信は、元のコードとコメントとして追加されたドキュメントを含むコードブロックである必要があります。使用するプログラミング言語に最も適切なドキュメント スタイルを使用します (例: JavaScript の場合は JSDoc、Python の場合は docstrings など)。',
-        },
-        FixDiagnostic = {
-          prompt = 'ファイル内の次の診断問題にご協力ください。:',
-          selection = select.diagnostics,
-        },
-        Commit = {
-          prompt = 'commitize の規則に従って、変更に対するコミットメッセージを記述してください。タイトルは最大 50 文字で、メッセージは 72 文字で折り返されるようにしてください。メッセージ全体を gitcommit 言語のコード ブロックでラップします。',
-          selection = select.gitdiff,
-        },
-        CommitStaged = {
-          prompt = 'commitize の規則に従って、変更に対するコミットメッセージを記述してください。タイトルは最大 50 文字で、メッセージは 72 文字で折り返されるようにしてください。メッセージ全体を gitcommit 言語のコード ブロックでラップします。',
-          selection = function(source)
-            return select.gitdiff(source, true)
-          end,
-        },
-        ExtractMethod = {
-          prompt = '選択したコードをメソッドに抽出してください。',
-        },
-      }
-      chat.setup(opts)
-    end,
-    -- opts = {
-    --   -- debug = true, -- Enable debugging
-    --   -- See Configuration section for rest
-    --   --
-    --   -- prompts
-    -- },
-    -- See Commands section for default commands if you want to lazy load on them
-  },
-  {
     'f-person/git-blame.nvim',
-    config = function()
-      require('gitblame').setup {
-        --Note how the `gitblame_` prefix is omitted in `setup`
-        enabled = false,
-      }
-    end,
+    opts = {
+      enabled = false,
+    },
   },
   {
     'RaafatTurki/hex.nvim',
-    config = function()
-      require('hex').setup()
-    end,
+    opts = {},
   },
   {
     'chrisgrieser/nvim-spider',
@@ -507,41 +306,12 @@ return {
   },
   {
     'ahmedkhalf/project.nvim',
-    config = function()
-      require('project_nvim').setup {
-        -- your configuration comes here
-        -- or leave it empty to use the default settings
-        -- refer to the configuration section below
-      }
-    end,
   },
   {
     'Wansmer/treesj',
     keys = { '<space>m', '<space>j', '<space>s' },
     dependencies = { 'nvim-treesitter/nvim-treesitter' }, -- if you install parsers with `nvim-treesitter`
-    config = function()
-      require('treesj').setup {--[[ your config ]]
-      }
-    end,
-  },
-  {
-    'romgrk/barbar.nvim',
-    dependencies = {
-      'lewis6991/gitsigns.nvim', -- OPTIONAL: for git status
-      'nvim-tree/nvim-web-devicons', -- OPTIONAL: for file icons
-    },
-    init = function()
-      vim.g.barbar_auto_setup = true
-      vim.keymap.set('n', '<A-l>', '<cmd>BufferNext<CR>', { buffer = bufnr })
-      vim.keymap.set('n', '<A-h>', '<cmd>BufferPrevious<CR>', { buffer = bufnr })
-    end,
-    opts = {
-      -- lazy.nvim will automatically call setup for you. put your options here, anything missing will use the default:
-      -- animation = true,
-      -- insert_at_start = true,
-      -- …etc.
-    },
-    version = '^1.0.0', -- optional: only update when a new 1.x version is released
+    opts = {},
   },
   {
     'kazhala/close-buffers.nvim',
@@ -606,9 +376,6 @@ return {
     'ray-x/lsp_signature.nvim',
     event = 'VeryLazy',
     opts = {},
-    config = function(_, opts)
-      require('lsp_signature').setup(opts)
-    end,
   },
   {
     'zbirenbaum/copilot.lua',

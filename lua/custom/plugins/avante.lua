@@ -7,9 +7,11 @@ return {
     -- for example
     -- provider = 'openai',
     provider = 'copilot',
+    -- provider = 'gemini',
     copilot = {
       endpoint = 'https://api.githubcopilot.com',
       model = 'claude-3.7-sonnet',
+      -- model = 'claude-3.5-sonnet',
       proxy = nil, -- [protocol://]host[:port] Use this proxy
       allow_insecure = false, -- Allow insecure server connections
       timeout = 30000, -- Timeout in milliseconds
@@ -29,6 +31,9 @@ return {
         'python',
       },
     },
+    gemini = {
+      model = 'gemini-2.5-pro-preview-03-25',
+    },
     -- other config
     -- The system_prompt type supports both a string and a function that returns a string. Using a function here allows dynamically updating the prompt with mcphub
     system_prompt = function()
@@ -41,6 +46,33 @@ return {
         require('mcphub.extensions.avante').mcp_tool(),
       }
     end,
+    ---Specify the behaviour of avante.nvim
+    ---1. auto_focus_sidebar              : Whether to automatically focus the sidebar when opening avante.nvim. Default to true.
+    ---2. auto_suggestions = false, -- Whether to enable auto suggestions. Default to false.
+    ---3. auto_apply_diff_after_generation: Whether to automatically apply diff after LLM response.
+    ---                                     This would simulate similar behaviour to cursor. Default to false.
+    ---4. auto_set_keymaps                : Whether to automatically set the keymap for the current line. Default to true.
+    ---                                     Note that avante will safely set these keymap. See https://github.com/yetone/avante.nvim/wiki#keymaps-and-api-i-guess for more details.
+    ---5. auto_set_highlight_group        : Whether to automatically set the highlight group for the current line. Default to true.
+    ---6. jump_result_buffer_on_finish = false, -- Whether to automatically jump to the result buffer after generation
+    ---7. support_paste_from_clipboard    : Whether to support pasting image from clipboard. This will be determined automatically based whether img-clip is available or not.
+    ---8. minimize_diff                   : Whether to remove unchanged lines when applying a code block
+    ---9. enable_token_counting           : Whether to enable token counting. Default to true.
+    behaviour = {
+      auto_focus_sidebar = true,
+      auto_suggestions_respect_ignore = false,
+      auto_set_highlight_group = true,
+      auto_set_keymaps = true,
+      auto_apply_diff_after_generation = true,
+      jump_result_buffer_on_finish = false,
+      support_paste_from_clipboard = false,
+      minimize_diff = true,
+      enable_token_counting = true,
+      enable_cursor_planning_mode = true,
+      enable_claude_text_editor_tool_mode = false,
+      use_cwd_as_project_root = true,
+      auto_focus_on_diff_view = false,
+    },
   },
   -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
   build = 'make',
