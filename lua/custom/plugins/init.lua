@@ -201,9 +201,6 @@ return {
     'kyoh86/vim-go-coverage',
   },
   {
-    'deris/vim-rengbang',
-  },
-  {
     'mattn/vim-goaddtags',
   },
   {
@@ -507,7 +504,6 @@ return {
           null_ls.builtins.diagnostics.sqlfluff.with {
             extra_args = { '--dialect', 'postgres' }, -- change to your dialect
           },
-          require 'none-ls.diagnostics.ruff',
           null_ls.builtins.code_actions.refactoring,
           null_ls.builtins.code_actions.gomodifytags,
         },
@@ -515,38 +511,8 @@ return {
       require('mason-null-ls').setup {}
     end,
   },
-  -- install with yarn or npm
   {
-    'iamcco/markdown-preview.nvim',
-    cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
-    build = 'cd app && yarn install',
-    ft = { 'markdown' },
-    config = function()
-      vim.g.mkdp_filetypes = { 'markdown' }
-      vim.g.mkdp_open_to_the_world = 1
-      vim.g.mkdp_port = '54321'
-    end,
-  },
-  {
-    'AckslD/nvim-neoclip.lua',
-    dependencies = {
-      -- you'll need at least one of these
-      { 'nvim-telescope/telescope.nvim' },
-      {
-        'ibhagwan/fzf-lua',
-        -- optional for icon support
-        dependencies = { 'nvim-tree/nvim-web-devicons' },
-        -- or if using mini.icons/mini.nvim
-        -- dependencies = { "echasnovski/mini.icons" },
-        opts = {},
-      },
-    },
-    keys = {
-      { '<leader>sc', ':Telescope neoclip<CR>', desc = '[S]earch [C]lipboard' },
-    },
-    config = function()
-      require('neoclip').setup()
-    end,
+    'monaqa/dial.nvim',
   },
   -- Lua
   {

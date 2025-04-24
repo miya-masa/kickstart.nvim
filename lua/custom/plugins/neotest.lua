@@ -7,8 +7,7 @@ return {
     'antoinemadec/FixCursorHold.nvim',
     'nvim-treesitter/nvim-treesitter',
     'nvim-neotest/neotest-python',
-    'nvim-neotest/neotest-go',
-    -- Your other test adapters here
+    'fredrikaverpil/neotest-golang',
   },
   keys = {
     {

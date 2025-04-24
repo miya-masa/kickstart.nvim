@@ -1045,7 +1045,11 @@ require('lazy').setup({
       sources = {
         default = { 'snippets', 'lsp', 'path', 'lazydev', 'copilot', 'buffer' },
         providers = {
-          lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
+          lazydev = { module = 'lazydev.integrations.blink', score_offset = 10000000 },
+          snippets = {
+            module = 'blink.cmp.sources.snippets',
+            score_offset = 99, -- receives a -3 from top level snippets.score_offset
+          },
           copilot = {
             name = 'copilot',
             module = 'blink-copilot',
@@ -1071,7 +1075,29 @@ require('lazy').setup({
       -- the rust implementation via `'prefer_rust_with_warning'`
       --
       -- See :h blink-cmp-config-fuzzy for more information
-      fuzzy = { implementation = 'lua' },
+      fuzzy = {
+        implementation = 'lua',
+        sorts = {
+          function(a, b)
+            local source_priority = {
+              snippets = 40,
+              lsp = 30,
+              path = 20,
+              lazydev = 15,
+              copilot = 13,
+              buffer = 10,
+            }
+            local a_priority = source_priority[a.source_id]
+            local b_priority = source_priority[b.source_id]
+            if a_priority ~= b_priority then
+              return a_priority < b_priority
+            end
+          end,
+          -- defaults
+          'score',
+          'sort_text',
+        },
+      },
 
       -- Shows a signature help window while you type arguments for a function
       signature = { enabled = true },
