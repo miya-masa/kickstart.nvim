@@ -473,7 +473,7 @@ require('lazy').setup({
         require('telescope.builtin').find_files()
       end, { desc = '[S]earch [F]iles' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
-      -- vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' }) spectre
+      vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', require('telescope').extensions.live_grep_args.live_grep_args, { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
@@ -593,40 +593,40 @@ require('lazy').setup({
 
           -- Rename the variable under your cursor.
           --  Most Language Servers support renaming across files, etc.
-          map('<Leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+          map('grn', vim.lsp.buf.rename, '[R]e[n]ame')
 
           -- Execute a code action, usually your cursor needs to be on top of an error
           -- or a suggestion from your LSP for this to activate.
-          map('<Leader>ca', vim.lsp.buf.code_action, 'Goto [C]ode [A]ction', { 'n', 'x' })
+          map('gra', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
 
           -- Find references for the word under your cursor.
-          map('<Leader>gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+          map('grr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
 
           -- Jump to the implementation of the word under your cursor.
           --  Useful when your language has ways of declaring types without an actual implementation.
-          map('<Leader>gi', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+          map('gri', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
 
           -- Jump to the definition of the word under your cursor.
           --  This is where a variable was first declared, or where a function is defined, etc.
           --  To jump back, press <C-t>.
-          map('<Leader>gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+          map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
 
           -- WARN: This is not Goto Definition, this is Goto Declaration.
           --  For example, in C this would take you to the header.
-          map('<Leader>gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+          map('grD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
           -- Fuzzy find all the symbols in your current document.
           --  Symbols are things like variables, functions, types, etc.
-          map('<Leader>gO', require('telescope.builtin').lsp_document_symbols, 'Open Document Symbols')
+          map('gO', require('telescope.builtin').lsp_document_symbols, 'Open Document Symbols')
 
           -- Fuzzy find all the symbols in your current workspace.
           --  Similar to document symbols, except searches over your entire project.
-          map('<Leader>gW', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Open Workspace Symbols')
+          map('gW', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Open Workspace Symbols')
 
           -- Jump to the type of the word under your cursor.
           --  Useful when you're not sure what type a variable is and you want to see
           --  the definition of its *type*, not where it was *defined*.
-          map('<Leader>gtd', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype [D]efinition')
+          map('grt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype Definition')
 
           -- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
           ---@param client vim.lsp.Client
@@ -825,7 +825,7 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
-        -- 'bashls',
+        'bashls',
         'buf',
         'docker_compose_language_service',
         'dockerls',
@@ -847,7 +847,7 @@ require('lazy').setup({
         'rstcheck',
         'ruff',
         'rust_analyzer',
-        -- 'shellcheck',
+        'shellcheck',
         'sqlfluff',
         'stylua',
         'terraformls',
@@ -859,7 +859,7 @@ require('lazy').setup({
         'yamlfmt',
         'yamllint',
       })
-      require('mason-tool-installer').setup { ensure_installed = ensure_installed, auto_update = true }
+      require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
         ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
@@ -962,6 +962,7 @@ require('lazy').setup({
 
   { -- Autocompletion
     'saghen/blink.cmp',
+    event = 'VimEnter',
     version = '1.*',
     dependencies = {
       -- Snippet Engine
@@ -1042,16 +1043,15 @@ require('lazy').setup({
       },
 
       sources = {
-        default = { 'git', 'lazydev', 'cmdline', 'buffer', 'snippets', 'path', 'copilot', 'lsp' },
+        default = { 'snippets', 'lsp', 'path', 'lazydev', 'copilot', 'buffer' },
         providers = {
           lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
           copilot = {
             name = 'copilot',
             module = 'blink-copilot',
-            score_offset = 90,
+            score_offset = -10000,
             async = true,
           },
-
           git = {
             module = 'blink-cmp-git',
             name = 'Git',
@@ -1157,7 +1157,7 @@ require('lazy').setup({
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
       -- require('mini.doc').setup {}
-      require('mini.basics').setup {}
+      -- require('mini.basics').setup {}
       require('mini.operators').setup {}
       local starter = require 'mini.starter'
       starter.setup {
@@ -1188,9 +1188,6 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      modules = {},
-      sync_install = false,
-      ignore_install = {},
       ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'terraform' },
       -- Autoinstall languages that are not installed
       auto_install = true,
