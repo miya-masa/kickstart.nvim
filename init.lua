@@ -998,6 +998,7 @@ require('lazy').setup({
         'Kaiser-Yang/blink-cmp-git',
         dependencies = { 'nvim-lua/plenary.nvim' },
       },
+      'Kaiser-Yang/blink-cmp-avante',
     },
     --- @module 'blink.cmp'
     --- @type blink.cmp.Config
@@ -1043,7 +1044,7 @@ require('lazy').setup({
       },
 
       sources = {
-        default = { 'snippets', 'lsp', 'path', 'lazydev', 'copilot', 'buffer' },
+        default = { 'avante', 'snippets', 'path', 'lazydev', 'lsp', 'copilot', 'buffer' },
         providers = {
           lazydev = { module = 'lazydev.integrations.blink', score_offset = 10000000 },
           snippets = {
@@ -1061,6 +1062,13 @@ require('lazy').setup({
             name = 'Git',
             opts = {
               -- options for the blink-cmp-git
+            },
+          },
+          avante = {
+            module = 'blink-cmp-avante',
+            name = 'Avante',
+            opts = {
+              -- options for blink-cmp-avante
             },
           },
         },
@@ -1083,6 +1091,7 @@ require('lazy').setup({
               snippets = 40,
               lsp = 30,
               path = 20,
+              avante = 17,
               lazydev = 15,
               copilot = 13,
               buffer = 10,

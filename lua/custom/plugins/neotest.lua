@@ -84,8 +84,17 @@ return {
     require('neotest').setup {
       -- your neotest config here
       adapters = {
-        require 'neotest-go' {
-          args = { '-count=1', '-timeout=60s' },
+        -- require 'neotest-go' {
+        --   args = { '-count=1', '-timeout=60s' },
+        -- },
+        require 'neotest-golang' {
+          go_test_args = { '-count=1', '-tags=integration' },
+          go_list_args = { '-tags=integration' },
+          dap_go_opts = {
+            delve = {
+              build_flags = { '-tags=integration' },
+            },
+          },
         },
         require 'neotest-python',
       },
