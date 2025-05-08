@@ -68,7 +68,7 @@ return {
       support_paste_from_clipboard = false,
       minimize_diff = true,
       enable_token_counting = true,
-      enable_cursor_planning_mode = true,
+      enable_cursor_planning_mode = false,
       enable_claude_text_editor_tool_mode = false,
       use_cwd_as_project_root = true,
       auto_focus_on_diff_view = false,

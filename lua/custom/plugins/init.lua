@@ -468,14 +468,17 @@ return {
   {
     'MeanderingProgrammer/render-markdown.nvim',
     lazy = true,
-    opts = {},
+    opts = {
+      file_types = { 'markdown', 'Avante', 'codecompanion', 'telekasten' },
+    },
     dependencies = {
       'nvim-treesitter/nvim-treesitter',
       'nvim-tree/nvim-web-devicons',
     }, -- if you prefer nvim-web-devicons
+    ft = { 'markdown', 'markdown.mdx', 'Avante', 'codecompanion', 'telekasten' },
     config = function()
       require('render-markdown').setup {
-        file_types = { 'markdown', 'telekasten' },
+        file_types = { 'markdown', 'markdown.mdx', 'Avante', 'codecompanion', 'telekasten' },
       }
     end,
   },
