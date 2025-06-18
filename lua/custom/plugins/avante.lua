@@ -8,39 +8,44 @@ return {
     -- provider = 'openai',
     provider = 'copilot',
     -- provider = 'gemini',
-    copilot = {
-      endpoint = 'https://api.githubcopilot.com',
-      model = 'claude-3.7-sonnet',
-      -- model = 'claude-3.5-sonnet',
-      proxy = nil, -- [protocol://]host[:port] Use this proxy
-      allow_insecure = false, -- Allow insecure server connections
-      timeout = 30000, -- Timeout in milliseconds
-      temperature = 0,
-      max_tokens = 20480,
-      disabled_tools = {
-        'list_files',
-        'search_files',
-        'read_file',
-        'create_file',
-        'rename_file',
-        'delete_file',
-        'create_dir',
-        'rename_dir',
-        'delete_dir',
-        'bash',
-        'python',
+    providers = {
+      copilot = {
+        endpoint = 'https://api.githubcopilot.com',
+        model = 'claude-sonnet-4',
+        disabled_tools = {
+          'list_files', -- Built-in file operations
+          'search_files',
+          'read_file',
+          'create_file',
+          'rename_file',
+          'delete_file',
+          'create_dir',
+          'rename_dir',
+          'delete_dir',
+          'bash', -- Built-in terminal access
+          'python',
+        },
+        proxy = nil, -- [protocol://]host[:port] Use this proxy
+        allow_insecure = false, -- Allow insecure server connections
+        timeout = 30000, -- Timeout in milliseconds
+        extra_request_body = {
+          -- model = 'claude-3.5-sonnet',
+          temperature = 0.75,
+          max_tokens = 128000,
+        },
       },
     },
-    gemini = {
-      model = 'gemini-2.5-pro-preview-03-25',
-    },
+    -- gemini = {
+    --   model = 'gemini-2.5-pro-preview-03-25',
+    -- },
     -- other config
-    -- The system_prompt type supports both a string and a function that returns a string. Using a function here allows dynamically updating the prompt with mcphub
+    -- system_prompt as function ensures LLM always has latest MCP server state
+    -- This is evaluated for every message, even in existing chats
     system_prompt = function()
       local hub = require('mcphub').get_hub_instance()
-      return hub:get_active_servers_prompt()
+      return hub and hub:get_active_servers_prompt() or ''
     end,
-    -- The custom_tools type supports both a list and a function that returns a list. Using a function here prevents requiring mcphub before it's loaded
+    -- Using function prevents requiring mcphub before it's loaded
     custom_tools = function()
       return {
         require('mcphub.extensions.avante').mcp_tool(),
@@ -58,21 +63,21 @@ return {
     ---7. support_paste_from_clipboard    : Whether to support pasting image from clipboard. This will be determined automatically based whether img-clip is available or not.
     ---8. minimize_diff                   : Whether to remove unchanged lines when applying a code block
     ---9. enable_token_counting           : Whether to enable token counting. Default to true.
-    behaviour = {
-      auto_focus_sidebar = true,
-      auto_suggestions_respect_ignore = false,
-      auto_set_highlight_group = true,
-      auto_set_keymaps = true,
-      auto_apply_diff_after_generation = true,
-      jump_result_buffer_on_finish = false,
-      support_paste_from_clipboard = false,
-      minimize_diff = true,
-      enable_token_counting = true,
-      enable_cursor_planning_mode = false,
-      enable_claude_text_editor_tool_mode = false,
-      use_cwd_as_project_root = true,
-      auto_focus_on_diff_view = false,
-    },
+    -- behaviour = {
+    --   auto_focus_sidebar = true,
+    --   auto_suggestions_respect_ignore = false,
+    --   auto_set_highlight_group = true,
+    --   auto_set_keymaps = true,
+    --   auto_apply_diff_after_generation = true,
+    --   jump_result_buffer_on_finish = false,
+    --   support_paste_from_clipboard = false,
+    --   minimize_diff = true,
+    --   enable_token_counting = true,
+    --   enable_cursor_planning_mode = false,
+    --   enable_claude_text_editor_tool_mode = false,
+    --   use_cwd_as_project_root = true,
+    --   auto_focus_on_diff_view = false,
+    -- },
   },
   -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
   build = 'make',
