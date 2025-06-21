@@ -26,7 +26,6 @@ return {
       { "<leader>zm", ":lua require('telekasten').browse_media()<CR>", desc = "Browse media" },
       { "<leader>za", ":lua require('telekasten').show_tags()<CR>", desc = "Show tags" },
       { "<leader>zr", ":lua require('telekasten').rename_note()<CR>", desc = "Rename note" },
-      { "<leader>z", ":lua require('telekasten').panel()<CR>", desc = "Telekasten Panel" },
     },
     config = function()
       local home = vim.fn.expand("~/zettelkasten")
